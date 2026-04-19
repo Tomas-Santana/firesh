@@ -21,12 +21,16 @@ my-project/default> db.orders
 ## Installation
 
 ```bash
-git clone https://github.com/tomas-santana/firesh
-cd firesh
-go build -o firesh .
+go install github.com/tomas-santana/firesh@latest
 
-# Optional: move to your PATH
-mv firesh /usr/local/bin/
+# Install this release explicitly
+go install github.com/tomas-santana/firesh@v0.1.0
+```
+
+For older Go workflows that still support version-less install, the module path is:
+
+```bash
+go install github.com/tomas-santana/firesh
 ```
 
 ## Authentication
@@ -215,27 +219,6 @@ Switch format mid-session with `\o`:
 ```
 
 Or set it at startup with `--output json`.
-
----
-
-## Project Structure
-
-```
-firesh/
-├── main.go
-├── cmd/
-│   └── root.go              # Cobra entry point and flags
-└── internal/
-    ├── auth/
-    │   └── auth.go          # ADC-based Firestore client factory
-    ├── query/
-    │   └── parser.go        # Chainable syntax parser → Chain struct
-    ├── output/
-    │   └── output.go        # Table / JSON / pretty renderers
-    └── repl/
-        ├── repl.go          # readline REPL loop, prompt, format switching
-        └── executor.go      # Chain → Firestore SDK calls
-```
 
 ---
 

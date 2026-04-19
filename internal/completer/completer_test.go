@@ -33,8 +33,8 @@ func TestChainMethodCompletion(t *testing.T) {
 	if !contains(got, "whereOr(") {
 		t.Fatalf("expected whereOr( completion, got: %v", got)
 	}
-	if !contains(got, "watch(") {
-		t.Fatalf("expected watch( completion, got: %v", got)
+	if !contains(got, "watch()") {
+		t.Fatalf("expected watch() completion, got: %v", got)
 	}
 }
 
