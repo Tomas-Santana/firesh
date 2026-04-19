@@ -49,6 +49,7 @@ func New(projectID, databaseID, outputFmt string) (*REPL, error) {
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
 		AutoComplete:    completer.New(),
+		Painter:         NewSyntaxPainter(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("readline: %w", err)
