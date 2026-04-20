@@ -12,6 +12,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/tomas-santana/firesh/internal/auth"
 	"github.com/tomas-santana/firesh/internal/completer"
+	"github.com/tomas-santana/firesh/internal/config"
 	"github.com/tomas-santana/firesh/internal/output"
 	"github.com/tomas-santana/firesh/internal/query"
 )
@@ -26,21 +27,23 @@ type REPL struct {
 	client     *firestore.Client
 	printer    *output.Printer
 	rl         *readline.Instance
+	cf         *config.Config
 }
 
 // New creates a REPL and connects to Firestore.
-func New(projectID, databaseID, outputFmt string) (*REPL, error) {
+func New(cf *config.Config) (*REPL, error) {
 	ctx := context.Background()
-	client, err := auth.NewClient(ctx, projectID, databaseID)
+	client, err := auth.NewClient(ctx, cf.DefaultProjectID, cf.DefaultDatabaseID)
 	if err != nil {
 		return nil, err
 	}
 
 	r := &REPL{
-		projectID:  projectID,
-		databaseID: databaseID,
+		projectID:  cf.DefaultProjectID,
+		databaseID: cf.DefaultDatabaseID,
 		client:     client,
-		printer:    output.New(outputFmt),
+		printer:    output.New(cf.OutputFormat),
+		cf:         cf,
 	}
 
 	rl, err := readline.NewEx(&readline.Config{
@@ -49,7 +52,7 @@ func New(projectID, databaseID, outputFmt string) (*REPL, error) {
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
 		AutoComplete:    completer.New(),
-		Painter:         NewSyntaxPainter(),
+		// Painter:         NewSyntaxPainter(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("readline: %w", err)
@@ -105,7 +108,14 @@ func (r *REPL) Run() error {
 // setFormat switches the output printer format mid-session.
 func (r *REPL) setFormat(f string) {
 	r.printer = output.New(f)
+
+	if err := r.cf.Update(&config.Config{OutputFormat: f}); err != nil {
+		color.New(color.FgRed).Printf("Failed to save config: %v\n", err)
+	} else {
+		r.cf.OutputFormat = f
+	}
 	color.New(color.FgGreen).Printf("Output format: %s\n", r.printer.Format)
+	color.New(color.FgYellow).Println("Note: This will be the default format for future sessions. To change it, use '\\o <format>' or edit the config file.")
 }
 
 // reconnect closes the current client and opens a new one.
