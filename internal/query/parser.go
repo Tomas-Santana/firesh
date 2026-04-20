@@ -89,6 +89,7 @@ const (
 	TermShowDBs
 	TermUse
 	TermOutputFmt
+	TermClear
 )
 
 // WhereClause holds a single where condition.
@@ -169,6 +170,8 @@ func Parse(input string) (*Chain, error) {
 		return &Chain{Terminal: TermHelp}, nil
 	case lower == "exit" || lower == "quit":
 		return &Chain{Terminal: TermExit}, nil
+	case lower == "clear" || lower == "cls":
+		return &Chain{Terminal: TermClear}, nil
 	case lower == "show collections":
 		return &Chain{Terminal: TermShowCollections}, nil
 	case lower == "show dbs" || lower == "show databases":

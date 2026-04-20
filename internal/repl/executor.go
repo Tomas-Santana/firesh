@@ -3,6 +3,9 @@ package repl
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 	"time"
 
@@ -18,6 +21,8 @@ func (r *REPL) executeCommand(ctx context.Context, chain *query.Chain) error {
 	switch chain.Terminal {
 	case query.TermHelp:
 		r.printer.PrintHelp()
+	case query.TermClear:
+		r.cmdClear()
 	case query.TermExit:
 		return ErrExit
 	case query.TermUse:
@@ -64,6 +69,17 @@ func (r *REPL) cmdUse(ctx context.Context, target string) error {
 	}
 	r.printer.PrintSuccess(fmt.Sprintf("Switched to project: %s  database: %s", project, database))
 	return nil
+}
+
+func (r *REPL) cmdClear() {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/c", "cls")
+	} else {
+		cmd = exec.Command("clear")
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
 
 func (r *REPL) cmdShowCollections(ctx context.Context) error {
